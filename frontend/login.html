@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow Guardians — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --rose: #e8a0b4;
+    --deep-rose: #c2637a;
+    --blush: #f5dce5;
+    --cream: #fdf6f0;
+    --dark: #1a0f14;
+    --muted: #7a6570;
+    --gold: #d4a96a;
+    --gold-light: #f0d5a8;
+    --error: #d94f6b;
+    --success: #52a67a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--deep-rose); border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9999;
+    transition: transform 0.15s ease; mix-blend-mode: multiply;
+  }
+  .cursor-follower {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--deep-rose); border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9998;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0.6;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    background: var(--dark);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+    position: relative; overflow: hidden;
+  }
+
+  .left-panel::before {
+    content: '';
+    position: absolute; top: -20%; right: -20%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(194,99,122,0.2) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+  }
+  .left-panel::after {
+    content: '';
+    position: absolute; bottom: -10%; left: -10%;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(212,169,106,0.12) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+  }
+
+  .panel-logo {
+    display: flex; align-items: center; gap: 0.7rem;
+    text-decoration: none; position: relative; z-index: 1;
+  }
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+    border-radius: 50% 30% 50% 30%;
+    display: grid; place-items: center;
+    font-size: 1rem; color: white;
+    box-shadow: 0 4px 16px rgba(194,99,122,0.5);
+  }
+  .logo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; font-weight: 600; color: white;
+  }
+
+  .panel-content { position: relative; z-index: 1; }
+
+  .panel-eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500; margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .panel-eyebrow::before {
+    content: ''; display: block; width: 24px; height: 1px; background: var(--gold);
+  }
+
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem; font-weight: 300;
+    color: white; line-height: 1.1; margin-bottom: 1.5rem;
+  }
+  .panel-title em { font-style: italic; color: var(--rose); }
+
+  .panel-desc {
+    font-size: 0.9rem; color: rgba(255,255,255,0.4);
+    line-height: 1.8; font-weight: 300; max-width: 300px;
+  }
+
+  /* Testimonial card */
+  .testimonial {
+    margin-top: 3.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 1.8rem;
+    position: relative;
+  }
+  .testimonial::before {
+    content: '"';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem; line-height: 1;
+    color: rgba(194,99,122,0.2);
+    position: absolute; top: 0.2rem; left: 1.2rem;
+  }
+  .testimonial-text {
+    font-size: 0.88rem; line-height: 1.75;
+    color: rgba(255,255,255,0.55);
+    font-style: italic; font-weight: 300;
+    margin-bottom: 1.2rem;
+  }
+  .testimonial-author {
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .t-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--gold));
+    display: grid; place-items: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: white;
+  }
+  .t-name { font-size: 0.83rem; color: rgba(255,255,255,0.7); font-weight: 500; }
+  .t-role { font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: 0.1rem; }
+
+  .panel-footer {
+    font-size: 0.75rem; color: rgba(255,255,255,0.2);
+    letter-spacing: 0.05em; position: relative; z-index: 1;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem; background: var(--cream); position: relative;
+  }
+  .right-panel::before {
+    content: '';
+    position: absolute; bottom: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,160,180,0.1) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+  }
+
+  .form-card {
+    width: 100%; max-width: 400px;
+    animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    position: relative; z-index: 1;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-header { margin-bottom: 2.4rem; }
+  .form-tag {
+    display: inline-block;
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--deep-rose); font-weight: 500;
+    border: 1px solid rgba(194,99,122,0.25);
+    border-radius: 100px; padding: 0.28rem 0.9rem;
+    margin-bottom: 1rem;
+  }
+  .form-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.6rem; font-weight: 300;
+    color: var(--dark); line-height: 1.1;
+  }
+  .form-title em { font-style: italic; color: var(--deep-rose); }
+  .form-subtitle {
+    font-size: 0.88rem; color: var(--muted);
+    margin-top: 0.5rem; font-weight: 300;
+  }
+
+  /* Fields */
+  .field { margin-bottom: 1.1rem; }
+  .field-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.45rem;
+  }
+  .field label {
+    font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500;
+  }
+  .forgot-link {
+    font-size: 0.75rem; color: var(--deep-rose);
+    text-decoration: none; font-weight: 400;
+    transition: color 0.2s;
+  }
+  .forgot-link:hover { color: var(--dark); }
+
+  .input-wrap { position: relative; }
+  .input-icon {
+    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+    color: rgba(122,101,112,0.45); font-size: 0.85rem;
+    pointer-events: none; transition: color 0.2s;
+  }
+  .input-wrap:focus-within .input-icon { color: var(--deep-rose); }
+
+  .toggle-pw {
+    position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+    color: rgba(122,101,112,0.4); font-size: 0.85rem;
+    cursor: pointer; transition: color 0.2s;
+  }
+  .toggle-pw:hover { color: var(--deep-rose); }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.7rem;
+    background: white;
+    border: 1.5px solid rgba(200,140,160,0.2);
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; color: var(--dark);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus {
+    border-color: var(--deep-rose);
+    box-shadow: 0 0 0 4px rgba(194,99,122,0.08);
+  }
+  input::placeholder { color: rgba(122,101,112,0.4); }
+  input.has-toggle { padding-right: 2.7rem; }
+
+  /* Remember row */
+  .remember-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 1.6rem; margin-top: 0.3rem;
+  }
+  .remember-row input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--deep-rose);
+    cursor: pointer; padding: 0;
+  }
+  .remember-row label {
+    font-size: 0.82rem; color: var(--muted);
+    font-weight: 300; cursor: pointer;
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%; padding: 1rem;
+    background: var(--dark); color: var(--cream);
+    border: 2px solid var(--dark); border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em;
+    cursor: pointer; transition: all 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    position: relative; overflow: hidden;
+  }
+  .btn-submit::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--deep-rose), #a0435c);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .btn-submit:hover::before { opacity: 1; }
+  .btn-submit:hover {
+    border-color: var(--deep-rose);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(194,99,122,0.3);
+  }
+  .btn-submit span, .btn-submit i { position: relative; z-index: 1; }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-submit:disabled::before { opacity: 0; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none; position: relative; z-index: 1;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Message */
+  .message {
+    margin-top: 1rem; padding: 0.75rem 1rem;
+    border-radius: 10px; font-size: 0.83rem;
+    display: none; align-items: center; gap: 0.5rem;
+    animation: fadeIn 0.3s ease;
+  }
+  .message.error  { background: rgba(217,79,107,0.08); color: var(--error); border: 1px solid rgba(217,79,107,0.2); display: flex; }
+  .message.success{ background: rgba(82,166,122,0.08); color: var(--success); border: 1px solid rgba(82,166,122,0.2); display: flex; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-5px);} to {opacity:1;transform:none;} }
+
+  /* Divider */
+  .divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 1.4rem 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(200,140,160,0.2);
+  }
+  .divider span { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+  .signup-link {
+    text-align: center;
+    font-size: 0.85rem; color: var(--muted); font-weight: 300;
+  }
+  .signup-link a {
+    color: var(--deep-rose); text-decoration: none;
+    font-weight: 500; transition: color 0.2s;
+  }
+  .signup-link a:hover { color: var(--dark); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    .left-panel { display: none; }
+    .right-panel { padding: 2rem 1.5rem; min-height: 100vh; }
+    .cursor, .cursor-follower { display: none; }
+    body { cursor: default; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <a href="index.html" class="panel-logo">
+    <div class="logo-mark">✦</div>
+    <span class="logo-text">Glow Guardians</span>
+  </a>
+
+  <div class="panel-content">
+    <div class="panel-eyebrow">Welcome Back</div>
+    <h2 class="panel-title">Good to see<br>you <em>again.</em></h2>
+    <p class="panel-desc">Your skin insights, routines, and analysis history are waiting for you.</p>
+
+    <div class="testimonial">
+      <p class="testimonial-text">I check my Glow Guardians dashboard every morning. It's become as essential as my moisturizer.</p>
+      <div class="testimonial-author">
+        <div class="t-avatar">S</div>
+        <div>
+          <div class="t-name">Sofia R.</div>
+          <div class="t-role">Member since 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">© 2026 Glow Guardians. All rights reserved.</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-tag">Member Access</div>
+      <h1 class="form-title">Login in to<br>your <em>account</em></h1>
+      <p class="form-subtitle">Enter your credentials to continue.</p>
+    </div>
+
+    <form onsubmit="loginUser(event)" autocomplete="on">
+      <div class="field">
+        <label for="email">Email Address</label>
+        <div class="input-wrap">
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" id="email" placeholder="jane@example.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top">
+          <label for="password">Password</label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <div class="input-wrap">
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password" placeholder="Your password" class="has-toggle" autocomplete="current-password">
+          <i class="fas fa-eye toggle-pw" id="togglePw" onclick="togglePassword()"></i>
+        </div>
+      </div>
+
+      <div class="remember-row">
+        <input type="checkbox" id="remember">
+        <label for="remember">Keep me signed in</label>
+      </div>
+
+      <button type="submit" class="btn-submit" id="loginBtn">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnText">Login</span>
+        <i class="fas fa-arrow-right" id="btnIcon" style="font-size:0.8rem"></i>
+      </button>
+
+      <div class="message" id="message"></div>
+    </form>
+
+    <div class="divider"><span>New to Glow Guardians?</span></div>
+    <p class="signup-link"><a href="signup.html">Create a free account →</a></p>
+  </div>
+</div>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('cursorFollower');
+  let mx = 0, my = 0, fx = 0, fy = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 5 + 'px';
+    cursor.style.top = my - 5 + 'px';
+  });
+  (function animateCursor() {
+    fx += (mx - fx) * 0.12; fy += (my - fy) * 0.12;
+    follower.style.left = fx - 18 + 'px'; follower.style.top = fy - 18 + 'px';
+    requestAnimationFrame(animateCursor);
+  })();
+  document.querySelectorAll('a, button, input').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(2)'; follower.style.transform = 'scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; follower.style.transform = 'scale(1)'; });
+  });
+
+  // Password toggle
+  function togglePassword() {
+    const pw = document.getElementById('password');
+    const icon = document.getElementById('togglePw');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      pw.type = 'password';
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  }
+
+  // Show message
+  function showMsg(text, type) {
+    const msg = document.getElementById('message');
+    msg.className = 'message ' + type;
+    msg.innerHTML = (type === 'error' ? '⚠ ' : '✓ ') + text;
+  }
+
+  // Login
+  async function loginUser(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const btn = document.getElementById('loginBtn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+
+    if (!email || !password) { showMsg('Please fill in all fields.', 'error'); return; }
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'Signing In…';
+    btnIcon.style.display = 'none';
+
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showMsg('Welcome back, ' + data.user.name + '!', 'success');
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        setTimeout(() => window.location.href = 'index.html', 1400);
+      } else {
+        showMsg(data.error || 'Invalid credentials. Please try again.', 'error');
+      }
+    } catch (err) {
+      showMsg('Cannot connect to server. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Sign In';
+      btnIcon.style.display = '';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.querySelector('.btn-submit').click();
+  });
+</script>
+</body>
+</html>
