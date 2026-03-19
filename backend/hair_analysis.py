@@ -17,3 +17,5 @@ def analyze_hair(path):
         "frizz_level": frizz,
         "summary": f"Hair frizz level detected as {frizz}"
     }
+
+      
