@@ -1,6 +1,14 @@
 from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
-from auth import auth
+from backend.routes.auth_routes import auth
+
+# Import AI utils
+from backend.utils.face_detection import detect_face
+from backend.utils.skin_analysis import analyze_skin
+from backend.utils.hair_analysis import analyze_hair
+from backend.utils.disease_analysis import analyze_disease
+from backend.utils.recommendation import get_recommendation
+
 import os
 
 # ======================================
@@ -18,7 +26,7 @@ app = Flask(
 
 CORS(app)
 
-# Upload folder (for AI image analysis later)
+# Upload folder
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -33,16 +41,14 @@ app.register_blueprint(auth, url_prefix="/api/auth")
 
 
 # ======================================
-# SERVE FRONTEND PAGES
+# SERVE FRONTEND
 # ======================================
 
-# Home Page
 @app.route("/")
 def home():
     return send_from_directory(app.static_folder, "index.html")
 
 
-# Serve all static files (html, css, js, images)
 @app.route("/<path:path>")
 def serve_files(path):
     file_path = os.path.join(app.static_folder, path)
@@ -54,11 +60,11 @@ def serve_files(path):
 
 
 # ======================================
-# IMAGE UPLOAD API (Future AI Analysis)
+# SKIN ANALYSIS API
 # ======================================
 
-@app.route("/api/upload", methods=["POST"])
-def upload_image():
+@app.route("/api/skin-analysis", methods=["POST"])
+def skin_analysis():
 
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
@@ -71,10 +77,69 @@ def upload_image():
     save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
     image.save(save_path)
 
+    # Face Detection
+    face = detect_face(save_path)
+
+    if face is None:
+        return jsonify({"error": "No face detected"}), 400
+
+    # Skin Analysis
+    skin_type, acne = analyze_skin(face)
+
+    # Recommendation
+    recommendation = get_recommendation(skin_type)
+
     return jsonify({
-        "message": "Image uploaded successfully",
-        "file_path": save_path
+        "skin_type": skin_type,
+        "acne": acne,
+        "recommendation": recommendation
     })
+
+
+# ======================================
+# HAIR ANALYSIS API
+# ======================================
+
+@app.route("/api/hair-analysis", methods=["POST"])
+def hair_analysis():
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    image = request.files["image"]
+
+    if image.filename == "":
+        return jsonify({"error": "Empty filename"}), 400
+
+    save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+    image.save(save_path)
+
+    result = analyze_hair(save_path)
+
+    return jsonify(result)
+
+
+# ======================================
+# DISEASE ANALYSIS API
+# ======================================
+
+@app.route("/api/disease-analysis", methods=["POST"])
+def disease_analysis():
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    image = request.files["image"]
+
+    if image.filename == "":
+        return jsonify({"error": "Empty filename"}), 400
+
+    save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+    image.save(save_path)
+
+    result = analyze_disease(save_path)
+
+    return jsonify(result)
 
 
 # ======================================
