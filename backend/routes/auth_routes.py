@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
-from database import users_collection
+from backend.database.db import users_collection
 import bcrypt
-from bson import ObjectId
 import datetime
 import uuid
 
@@ -9,7 +8,7 @@ import uuid
 # CREATE BLUEPRINT
 # =====================================
 
-auth = Blueprint("auth", __name__)
+auth = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
 # =====================================
@@ -17,7 +16,6 @@ auth = Blueprint("auth", __name__)
 # =====================================
 
 def generate_token():
-    """Generate simple session token"""
     return str(uuid.uuid4())
 
 
@@ -34,27 +32,23 @@ def register():
         email = data.get("email")
         password = data.get("password")
 
-        # Validate input
         if not name or not email or not password:
             return jsonify({
                 "success": False,
                 "error": "All fields are required"
             }), 400
 
-        # Check existing user
         if users_collection.find_one({"email": email}):
             return jsonify({
                 "success": False,
                 "error": "User already exists"
             }), 400
 
-        # Hash password
         hashed_pw = bcrypt.hashpw(
             password.encode("utf-8"),
             bcrypt.gensalt()
         )
 
-        # Save user
         user_id = users_collection.insert_one({
             "name": name,
             "email": email,
@@ -93,7 +87,6 @@ def login():
                 "error": "Email and password required"
             }), 400
 
-        # Find user
         user = users_collection.find_one({"email": email})
 
         if not user:
@@ -102,20 +95,20 @@ def login():
                 "error": "User not found"
             }), 404
 
-        # Verify password
         if not bcrypt.checkpw(password.encode("utf-8"), user["password"]):
             return jsonify({
                 "success": False,
                 "error": "Invalid password"
             }), 401
 
-        # Generate session token
         token = generate_token()
 
-        # Save token in DB
         users_collection.update_one(
             {"_id": user["_id"]},
-            {"$set": {"session_token": token}}
+            {"$set": {
+                "session_token": token,
+                "token_created_at": datetime.datetime.utcnow()
+            }}
         )
 
         return jsonify({
@@ -137,16 +130,22 @@ def login():
 
 
 # =====================================
-# GET USER PROFILE (Protected Route)
+# PROFILE (PROTECTED)
 # =====================================
 
 @auth.route("/profile", methods=["GET"])
 def profile():
 
-    token = request.headers.get("Authorization")
+    auth_header = request.headers.get("Authorization")
 
-    if not token:
+    if not auth_header:
         return jsonify({"error": "Token missing"}), 401
+
+    # Expect: Bearer token
+    if not auth_header.startswith("Bearer "):
+        return jsonify({"error": "Invalid token format"}), 401
+
+    token = auth_header.split(" ")[1]
 
     user = users_collection.find_one({"session_token": token})
 

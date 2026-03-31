@@ -1,8 +1,10 @@
 from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
+
 from backend.routes.auth_routes import auth
 
-# Import AI utils
+# AI utils
 from backend.utils.face_detection import detect_face
 from backend.utils.skin_analysis import analyze_skin
 from backend.utils.hair_analysis import analyze_hair
@@ -15,8 +17,10 @@ import os
 # APP CONFIGURATION
 # ======================================
 
-# Path to frontend folder
-FRONTEND_FOLDER = os.path.join(os.path.dirname(__file__), "../frontend")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Frontend path
+FRONTEND_FOLDER = os.path.join(BASE_DIR, "../frontend")
 
 app = Flask(
     __name__,
@@ -26,18 +30,36 @@ app = Flask(
 
 CORS(app)
 
-# Upload folder
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
+# Upload config
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5MB limit
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+
+
+# ======================================
+# HELPER FUNCTIONS
+# ======================================
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_file(file):
+    filename = secure_filename(file.filename)
+    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(save_path)
+    return save_path
 
 
 # ======================================
 # REGISTER BLUEPRINTS
 # ======================================
 
-app.register_blueprint(auth, url_prefix="/api/auth")
+app.register_blueprint(auth)
 
 
 # ======================================
@@ -65,35 +87,44 @@ def serve_files(path):
 
 @app.route("/api/skin-analysis", methods=["POST"])
 def skin_analysis():
+    try:
+        if "image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
 
-    if "image" not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
+        image = request.files["image"]
 
-    image = request.files["image"]
+        if image.filename == "":
+            return jsonify({"error": "Empty filename"}), 400
 
-    if image.filename == "":
-        return jsonify({"error": "Empty filename"}), 400
+        if not allowed_file(image.filename):
+            return jsonify({"error": "Invalid file type"}), 400
 
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
-    image.save(save_path)
+        save_path = save_file(image)
 
-    # Face Detection
-    face = detect_face(save_path)
+        # Face Detection
+        face = detect_face(save_path)
 
-    if face is None:
-        return jsonify({"error": "No face detected"}), 400
+        if face is None:
+            return jsonify({"error": "No face detected"}), 400
 
-    # Skin Analysis
-    skin_type, acne = analyze_skin(face)
+        # Skin Analysis
+        skin_type, acne = analyze_skin(face)
 
-    # Recommendation
-    recommendation = get_recommendation(skin_type)
+        # Recommendation
+        recommendation = get_recommendation(skin_type)
 
-    return jsonify({
-        "skin_type": skin_type,
-        "acne": acne,
-        "recommendation": recommendation
-    })
+        return jsonify({
+            "success": True,
+            "skin_type": skin_type,
+            "acne": acne,
+            "recommendation": recommendation
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 # ======================================
@@ -102,21 +133,32 @@ def skin_analysis():
 
 @app.route("/api/hair-analysis", methods=["POST"])
 def hair_analysis():
+    try:
+        if "image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
 
-    if "image" not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
+        image = request.files["image"]
 
-    image = request.files["image"]
+        if image.filename == "":
+            return jsonify({"error": "Empty filename"}), 400
 
-    if image.filename == "":
-        return jsonify({"error": "Empty filename"}), 400
+        if not allowed_file(image.filename):
+            return jsonify({"error": "Invalid file type"}), 400
 
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
-    image.save(save_path)
+        save_path = save_file(image)
 
-    result = analyze_hair(save_path)
+        result = analyze_hair(save_path)
 
-    return jsonify(result)
+        return jsonify({
+            "success": True,
+            "result": result
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 # ======================================
@@ -125,21 +167,32 @@ def hair_analysis():
 
 @app.route("/api/disease-analysis", methods=["POST"])
 def disease_analysis():
+    try:
+        if "image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
 
-    if "image" not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
+        image = request.files["image"]
 
-    image = request.files["image"]
+        if image.filename == "":
+            return jsonify({"error": "Empty filename"}), 400
 
-    if image.filename == "":
-        return jsonify({"error": "Empty filename"}), 400
+        if not allowed_file(image.filename):
+            return jsonify({"error": "Invalid file type"}), 400
 
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
-    image.save(save_path)
+        save_path = save_file(image)
 
-    result = analyze_disease(save_path)
+        result = analyze_disease(save_path)
 
-    return jsonify(result)
+        return jsonify({
+            "success": True,
+            "result": result
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 # ======================================
@@ -149,8 +202,23 @@ def disease_analysis():
 @app.route("/api/status")
 def status():
     return jsonify({
-        "status": "Glow Guardians API Running 🚀"
+        "success": True,
+        "message": "Glow Guardians API Running 🚀"
     })
+
+
+# ======================================
+# GLOBAL ERROR HANDLER
+# ======================================
+
+@app.errorhandler(413)
+def file_too_large(e):
+    return jsonify({"error": "File too large (Max 5MB)"}), 413
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Route not found"}), 404
 
 
 # ======================================

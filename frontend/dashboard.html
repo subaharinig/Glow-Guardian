@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow Guardians - Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fdf6f0;
+}
+
+/* Navbar */
+.navbar {
+    background: #1a0f14;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logout-btn {
+    background: #c2637a;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+/* Container */
+.container {
+    padding: 40px;
+}
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    border: none;
+    background: #1a0f14;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>Glow Guardians</h2>
+    <div>
+        <span id="username"></span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <h1>Welcome 👋</h1>
+    <p>Your AI beauty assistant dashboard</p>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>Skin Analysis</h2>
+            <p>Detect skin type & acne</p>
+            <button onclick="goTo('skin.html')">Start</button>
+        </div>
+
+        <div class="card">
+            <h2>Hair Analysis</h2>
+            <p>Analyze scalp & hair condition</p>
+            <button onclick="goTo('hair.html')">Start</button>
+        </div>
+
+        <div class="card">
+            <h2>Disease Detection</h2>
+            <p>Identify skin diseases</p>
+            <button onclick="goTo('disease.html')">Start</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ======================================
+// CHECK LOGIN
+// ======================================
+
+const token = localStorage.getItem("token");
+
+if(!token){
+    alert("Please login first");
+    window.location.href = "login.html";
+}
+
+
+// ======================================
+// LOAD USER DATA
+// ======================================
+
+async function loadUser(){
+
+    try{
+        const res = await fetch("http://127.0.0.1:5000/api/auth/profile", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const data = await res.json();
+
+        if(res.ok){
+            document.getElementById("username").innerText = data.name;
+        } else {
+            logout();
+        }
+
+    } catch(err){
+        logout();
+    }
+}
+
+loadUser();
+
+
+// ======================================
+// NAVIGATION
+// ======================================
+
+function goTo(page){
+    window.location.href = page;
+}
+
+
+// ======================================
+// LOGOUT
+// ======================================
+
+function logout(){
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
