@@ -2,11 +2,11 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+# IMPORTANT: remove "backend." if running inside backend folder
 from backend.routes.auth_routes import auth
 
-# AI utils
 from backend.utils.face_detection import detect_face
-from backend.utils.skin_analysis import analyze_skin
+from backend.utils.skin_analysis import full_analysis
 from backend.utils.hair_analysis import analyze_hair
 from backend.utils.disease_analysis import analyze_disease
 from backend.utils.recommendation import get_recommendation
@@ -59,7 +59,7 @@ def save_file(file):
 # REGISTER BLUEPRINTS
 # ======================================
 
-app.register_blueprint(auth)
+app.register_blueprint(auth, url_prefix="/api/auth")
 
 
 # ======================================
@@ -68,7 +68,7 @@ app.register_blueprint(auth)
 
 @app.route("/")
 def home():
-    return send_from_directory(app.static_folder, "index.html")
+    return send_from_directory(app.static_folder, "landing.html")
 
 
 @app.route("/<path:path>")
@@ -82,7 +82,7 @@ def serve_files(path):
 
 
 # ======================================
-# SKIN ANALYSIS API
+# SKIN ANALYSIS API (UPDATED)
 # ======================================
 
 @app.route("/api/skin-analysis", methods=["POST"])
@@ -107,16 +107,15 @@ def skin_analysis():
         if face is None:
             return jsonify({"error": "No face detected"}), 400
 
-        # Skin Analysis
-        skin_type, acne = analyze_skin(face)
+        # ✅ FULL AI ANALYSIS
+        result = full_analysis(face)
 
         # Recommendation
-        recommendation = get_recommendation(skin_type)
+        recommendation = get_recommendation(result["skin_type"])
 
         return jsonify({
             "success": True,
-            "skin_type": skin_type,
-            "acne": acne,
+            **result,
             "recommendation": recommendation
         })
 

@@ -6,29 +6,62 @@ def analyze_hair(image_path):
     img = cv2.imread(image_path)
 
     if img is None:
-        return {"error": "Invalid image"}
+        return {"error": "Image not found"}
+
+    img = cv2.resize(img, (224, 224))
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # 🌟 Brightness (Hair Type)
     brightness = np.mean(gray)
 
-    # Oil / Dry detection
     if brightness > 150:
-        hair_type = "Oily Scalp"
+        hair_type = "Oily"
+    elif brightness < 90:
+        hair_type = "Dry"
     else:
-        hair_type = "Dry Scalp"
+        hair_type = "Normal"
 
-    # Dandruff detection (white pixels)
-    _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
-    white_pixels = np.sum(thresh == 255)
+    # 🧵 Texture (Frizz)
+    texture = np.var(gray)
 
-    if white_pixels > 5000:
-        issue = "Possible dandruff detected"
+    if texture > 500:
+        frizz = "High"
+    elif texture > 200:
+        frizz = "Medium"
     else:
-        issue = "No major dandruff"
+        frizz = "Low"
+
+    # 🔳 Damage (Edges)
+    edges = cv2.Canny(gray, 100, 200)
+    edge_density = np.mean(edges)
+
+    if edge_density > 25:
+        damage = "High"
+    elif edge_density > 10:
+        damage = "Medium"
+    else:
+        damage = "Low"
+
+    # ❄️ Dandruff (White pixels detection)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    lower_white = np.array([0, 0, 200])
+    upper_white = np.array([180, 50, 255])
+
+    mask = cv2.inRange(hsv, lower_white, upper_white)
+    white_ratio = np.sum(mask) / (224 * 224)
+
+    if white_ratio > 0.15:
+        dandruff = "High"
+    elif white_ratio > 0.05:
+        dandruff = "Medium"
+    else:
+        dandruff = "Low"
 
     return {
         "hair_type": hair_type,
-        "issue": issue,
-        "recommendation": "Use mild shampoo and maintain scalp hygiene"
+        "frizz": frizz,
+        "damage": damage,
+        "dandruff": dandruff
     }

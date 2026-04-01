@@ -1,10 +1,28 @@
 def get_recommendation(skin_type):
 
-    if skin_type == "Dry":
-        return "Use a hydrating moisturizer and drink plenty of water."
+    if skin_type == "Oily":
+        return [
+            "Use oil control face wash",
+            "Apply gel-based moisturizer",
+            "Use sunscreen SPF 50"
+        ]
 
-    elif skin_type == "Oily":
-        return "Use oil-free face wash and avoid heavy creams."
+    elif skin_type == "Dry":
+        return [
+            "Use hydrating cleanser",
+            "Apply heavy moisturizer",
+            "Drink more water"
+        ]
+
+    elif skin_type == "Normal":
+        return [
+            "Maintain a balanced skincare routine",
+            "Use mild face wash",
+            "Apply sunscreen daily"
+        ]
 
     else:
-        return "Maintain a balanced skincare routine with gentle products."
+        return [
+            "Consult dermatologist",
+            "Use gentle skincare products"
+        ]

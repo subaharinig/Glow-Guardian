@@ -1,16 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skin Analysis</title>
+    <title>Face Analysis</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-box {
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .tag {
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px 0;
+            background: #eee;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Skin Analysis</h2>
+<h2>🧠 Face Analysis</h2>
 
-<input type="file" id="imageInput">
-<button onclick="analyzeSkin()">Analyze</button>
+<div class="card">
+    <input type="file" id="imageInput"><br><br>
+    <button onclick="analyzeSkin()">Analyze</button>
 
-<h3 id="result"></h3>
+    <img id="preview" style="display:none;">
+
+    <div class="result-box" id="resultBox" style="display:none;">
+        <p><strong>Issue:</strong> <span id="issue"></span></p>
+        <p><strong>Skin Type:</strong> <span id="skinType"></span></p>
+        <p><strong>Tan Level:</strong> <span id="tan"></span></p>
+        <p><strong>Wrinkles:</strong> <span id="wrinkles"></span></p>
+
+        <h4>💡 Recommendations:</h4>
+        <ul id="recommendationList"></ul>
+    </div>
+</div>
 
 <script src="js/script.js"></script>
 
