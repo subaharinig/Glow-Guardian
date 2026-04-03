@@ -92,29 +92,26 @@ def serve_files(path):
 # ======================================
 
 @app.route("/api/face-analysis", methods=["POST"])
-def analyze_face():
+def face_analysis_api():
     try:
         image = request.files.get("image")
 
         if not image or image.filename == "":
-            return jsonify({"error": "No image uploaded"}), 400
+            return jsonify({"success": False, "error": "No image uploaded"}), 400
 
         save_path = save_file(image)
 
         face = detect_face(save_path)
 
         if face is None:
-            return jsonify({"error": "No face detected"}), 400
+            return jsonify({"success": False, "error": "No face detected"}), 400
 
         result = face_analysis(face)
 
-        return jsonify({
-            "success": True,
-            **result
-        })
+        return jsonify(result)   # ✅ FIXED
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ======================================
@@ -127,26 +124,33 @@ def analyze_hair_api():
         image = request.files.get("image")
 
         if not image or image.filename == "":
-            return jsonify({"error": "No image uploaded"}), 400
+            return jsonify({"success": False, "error": "No image uploaded"}), 400
 
         save_path = save_file(image)
 
         result = analyze_hair(save_path)
 
+        if "error" in result:
+            return jsonify({
+                "success": False,
+                "error": result["error"]
+            }), 400
+
         return jsonify({
             "success": True,
-            "result": result
+            **result
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 
 # ======================================
-# 3️⃣ SKIN ANALYSIS (FINAL ✅)
+# 3️⃣ SKIN ANALYSIS (FINAL CLEAN ✅)
 # ======================================
+
+from backend.utils.recommendation import get_skin_recommendation
 
 @app.route("/api/skin-analysis", methods=["POST"])
 def analyze_skin():
@@ -176,15 +180,8 @@ def analyze_skin():
         # Detect Skin Type
         skin_type = detect_skin_type(features)
 
-        # Recommendations
-        if pred == 0:
-            rec = ["Avoid allergens", "Use anti-allergic cream"]
-        elif pred == 1:
-            rec = ["Keep area clean", "Consult doctor if severe"]
-        elif pred == 2:
-            rec = ["Maintain hygiene", "Use moisturizer"]
-        else:
-            rec = ["Use soothing lotion", "Avoid heat exposure"]
+        # ✅ CENTRALIZED RECOMMENDATION LOGIC
+        rec = get_skin_recommendation(condition)
 
         return jsonify({
             "success": True,

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from backend.utils.recommendation import get_hair_recommendation
+
 def analyze_hair(image_path):
 
     img = cv2.imread(image_path)
@@ -59,9 +61,13 @@ def analyze_hair(image_path):
     else:
         dandruff = "Low"
 
+
+    recommendation = get_hair_recommendation(hair_type, frizz, damage, dandruff)
+
     return {
-        "hair_type": hair_type,
-        "frizz": frizz,
-        "damage": damage,
-        "dandruff": dandruff
-    }
+    "hair_type": hair_type,
+    "frizz": frizz,
+    "damage": damage,
+    "dandruff": dandruff,
+    "recommendation": recommendation   # ✅ ADD
+}

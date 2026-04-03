@@ -3,15 +3,34 @@
 <head>
     <title>Skin Disease Analysis</title>
 </head>
+
 <body>
 
 <h2>Skin Disease Analysis</h2>
 
+<!-- Input -->
 <input type="file" id="imageInput">
 <button onclick="analyzeSkin()">Analyze</button>
 
-<!-- ✅ FIXED ID -->
-<div id="resultBox"></div>
+<!-- Preview -->
+<img id="preview" style="display:none; width:200px; margin-top:10px;" />
+
+<!-- Status -->
+<p id="status"></p>
+
+<!-- Result Box -->
+<div id="result" style="display:none; margin-top:20px; border:1px solid #ccc; padding:15px;">
+
+    <h3>🧠 Skin Analysis</h3>
+
+    <p><b>Condition:</b> <span id="skinCondition"></span></p>
+    <p><b>Confidence:</b> <span id="skinConfidence"></span>%</p>
+    <p><b>Skin Type:</b> <span id="skinType"></span></p>
+
+    <h4>💡 Recommendations:</h4>
+    <ul id="skinRecommendationList"></ul>
+
+</div>
 
 <script src="js/script.js"></script>
 

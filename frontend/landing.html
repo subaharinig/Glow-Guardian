@@ -28,30 +28,12 @@
     background: var(--cream);
     color: var(--dark);
     overflow-x: hidden;
-    cursor: none;
+    
   }
 
   /* Custom cursor */
-  .cursor {
-    width: 10px; height: 10px;
-    background: var(--deep-rose);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    transition: transform 0.15s ease;
-    mix-blend-mode: multiply;
-  }
-  .cursor-follower {
-    width: 36px; height: 36px;
-    border: 1.5px solid var(--deep-rose);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9998;
-    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    opacity: 0.6;
-  }
+  
+
 
   /* ── NAV ── */
   nav {
@@ -795,39 +777,7 @@
 </footer>
 
 <script>
-// Custom cursor
-const cursor = document.getElementById('cursor');
-const follower = document.getElementById('cursorFollower');
-let mx = 0, my = 0, fx = 0, fy = 0;
 
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.left = mx - 5 + 'px';
-  cursor.style.top = my - 5 + 'px';
-});
-
-const animateCursor = () => {
-  fx += (mx - fx) * 0.12;
-  fy += (my - fy) *.12;
-  follower.style.left = fx - 18 + 'px';
-  follower.style.top = fy - 18 + 'px';
-  requestAnimationFrame(animateCursor);
-};
-animateCursor();
-
-// Scale cursor on hover
-document.querySelectorAll('a, .tool-card, button').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.transform = 'scale(2)';
-    follower.style.transform = 'scale(1.5)';
-    follower.style.borderColor = 'var(--gold)';
-  });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.transform = 'scale(1)';
-    follower.style.transform = 'scale(1)';
-    follower.style.borderColor = 'var(--deep-rose)';
-  });
-});
 
 // Scroll reveal
 const observer = new IntersectionObserver(entries => {

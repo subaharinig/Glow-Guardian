@@ -1,80 +1,532 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Hair Analysis</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hair Analysis - Glow Guardians</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --rose: #e8a0b4;
+      --deep-rose: #c2637a;
+      --blush: #f5dce5;
+      --cream: #fdf6f0;
+      --dark: #1a0f14;
+      --muted: #7a6570;
+      --gold: #d4a96a;
+    }
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f5f5;
-            text-align: center;
-            padding: 40px;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 350px;
-            margin: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
 
-        img {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 1.6rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(253, 246, 240, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,140,160,0.15);
+    }
 
-        .result-box {
-            text-align: left;
-            margin-top: 15px;
-        }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+      border-radius: 50% 30% 50% 30%;
+      display: grid; place-items: center;
+      font-size: 1rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(194,99,122,0.4);
+    }
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem; font-weight: 600;
+      color: var(--dark); letter-spacing: 0.01em;
+    }
 
-        ul {
-            padding-left: 20px;
-        }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .back-btn {
+      padding: 0.65rem 1.6rem;
+      background: var(--deep-rose);
+      color: var(--cream);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .back-btn:hover {
+      background: var(--rose);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(194,99,122,0.35);
+    }
 
-        button {
-            padding: 10px 15px;
-            border: none;
-            background: black;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    /* ── MAIN ── */
+    .main {
+      padding: 120px 5% 80px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-        button:hover {
-            background: #333;
-        }
-    </style>
+    .header {
+      text-align: center; margin-bottom: 4rem;
+    }
+    .header-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--deep-rose); font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .header-eyebrow::before {
+      content: '';
+      width: 28px; height: 1px;
+      background: var(--deep-rose);
+    }
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 300; line-height: 1.1;
+      color: var(--dark); margin-bottom: 0.5rem;
+    }
+    .header p {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 500px; margin: 0 auto;
+      line-height: 1.75; font-weight: 300;
+    }
+
+    /* ── UPLOAD CARD ── */
+    .upload-card {
+      background: white;
+      border-radius: 28px;
+      padding: 3rem;
+      border: 1px solid rgba(200,140,160,0.12);
+      position: relative; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(194,99,122,0.08);
+      margin-bottom: 3rem;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .upload-grid { grid-template-columns: 1fr; }
+    }
+
+    .upload-left h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 400;
+      color: var(--dark); margin-bottom: 1rem;
+    }
+    .upload-left p {
+      color: var(--muted); margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    #imageInput {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px dashed rgba(200,140,160,0.4);
+      border-radius: 16px;
+      background: rgba(245,220,229,0.3);
+      font-size: 1rem;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    #imageInput:hover {
+      border-color: var(--deep-rose);
+      background: rgba(232,160,180,0.15);
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 1.2rem;
+      background: linear-gradient(135deg, var(--deep-rose), var(--rose));
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: 1rem; font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: all 0.3s;
+    }
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(194,99,122,0.4);
+    }
+
+    #status {
+      margin-top: 1rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 100px;
+      font-weight: 500;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status-error {
+      background: rgba(226,99,122,0.15);
+      color: var(--deep-rose);
+      border: 1px solid rgba(226,99,122,0.3);
+    }
+    .status-loading {
+      background: rgba(212,169,106,0.2);
+      color: var(--gold);
+    }
+    .status-success {
+      background: rgba(108,170,69,0.2);
+      color: #437a22;
+    }
+
+    /* ── PREVIEW ── */
+    .preview-panel {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid rgba(200,140,160,0.15);
+      box-shadow: 0 12px 40px rgba(194,99,122,0.08);
+    }
+    .preview-header {
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      margin-bottom: 1rem; font-weight: 500;
+    }
+    #preview {
+      width: 100%; height: 280px; object-fit: cover;
+      border-radius: 16px; display: none;
+      background: linear-gradient(135deg, var(--blush), #f0d5a8);
+    }
+    .preview-placeholder {
+      height: 280px; display: grid; place-items: center;
+      color: var(--muted); text-align: center;
+      border: 2px dashed rgba(200,140,160,0.2);
+      border-radius: 16px; background: rgba(245,220,229,0.1);
+    }
+    .preview-placeholder i {
+      font-size: 3rem; opacity: 0.4; margin-bottom: 0.5rem;
+    }
+
+    /* ── RESULTS ── */
+    #resultBox {
+      display: none;
+      background: white;
+      border-radius: 28px;
+      padding: 3rem;
+      border: 1px solid rgba(200,140,160,0.12);
+      box-shadow: 0 20px 60px rgba(194,99,122,0.08);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .result-item {
+      background: rgba(245,220,229,0.4);
+      padding: 1.5rem;
+      border-radius: 20px;
+      border-left: 4px solid var(--deep-rose);
+    }
+    .result-label {
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--muted);
+      margin-bottom: 0.3rem; font-weight: 500;
+    }
+    .result-value {
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--dark);
+    }
+
+    .recommendations {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,140,160,0.15);
+    }
+    .recommendations h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 400;
+      color: var(--dark); margin-bottom: 1.5rem;
+    }
+
+    #hairRecommendationList {
+      list-style: none;
+    }
+    #hairRecommendationList li {
+      background: white;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: 16px;
+      border-left: 4px solid var(--rose);
+      box-shadow: 0 4px 12px rgba(232,160,180,0.15);
+      font-size: 1rem; line-height: 1.6;
+    }
+
+    /* ── RECOMMENDED PRODUCTS ── */
+    .recommended-products {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,140,160,0.15);
+    }
+
+    .recommended-products h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(194,99,122,0.12);
+      border: 1px solid rgba(200,140,160,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(194,99,122,0.18);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, var(--blush), #f0e8d8);
+    }
+
+    .product-content {
+      padding: 1.2rem;
+    }
+
+    .product-content h4 {
+      font-size: 1.1rem;
+      color: var(--dark);
+      margin-bottom: 0.6rem;
+    }
+
+    .product-content p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .buy-btn {
+      display: inline-block;
+      padding: 0.75rem 1.4rem;
+      background: linear-gradient(135deg, var(--deep-rose), var(--rose));
+      color: white;
+      text-decoration: none;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .buy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(194,99,122,0.3);
+    }
+
+    @media (max-width: 768px) {
+      .main { padding: 100px 5% 60px; }
+      .upload-card, #resultBox { padding: 2rem; }
+      .results-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
 
-<h2>💇 Hair Analysis</h2>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="logo">
+      <div class="logo-mark">✦</div>
+      <span class="logo-text">Glow Guardians</span>
+    </a>
+    <div class="nav-right">
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+  </nav>
 
-<div class="card">
+  <!-- MAIN -->
+  <div class="main">
+    <header class="header">
+      <div class="header-eyebrow">AI-Powered Analysis</div>
+      <h1>Hair Analysis</h1>
+      <p>Upload a clear photo of your hair for comprehensive scalp and hair health evaluation</p>
+    </header>
 
-    <input type="file" id="imageInput"><br><br>
+    <!-- UPLOAD CARD -->
+    <div class="upload-card">
+      <div class="upload-grid">
+        <div class="upload-left">
+          <h2>Upload Your Photo</h2>
+          <p>Take a well-lit photo showing your hair and scalp clearly. AI will analyze hair type, frizz, damage, dandruff and provide personalized recommendations.</p>
 
-    <button onclick="analyzeHair()">Analyze Hair</button>
+          <input type="file" id="imageInput" accept="image/*">
+          <button class="analyze-btn" onclick="analyzeHair()">Analyze Hair</button>
+          <div id="status"></div>
+        </div>
 
-    <img id="preview" style="display:none;">
-
-    <div class="result-box" id="resultBox" style="display:none;">
-        <p><strong>Hair Type:</strong> <span id="hairType"></span></p>
-        <p><strong>Frizz:</strong> <span id="frizz"></span></p>
-        <p><strong>Damage:</strong> <span id="damage"></span></p>
-        <p><strong>Dandruff:</strong> <span id="dandruff"></span></p>
-
-        <h4>💡 Recommendations:</h4>
-        <ul id="recommendationList"></ul>
+        <div class="preview-panel">
+          <div class="preview-header">Live Preview</div>
+          <img id="preview" alt="Hair preview">
+          <div class="preview-placeholder" id="previewPlaceholder">
+            <div>
+              <i class="fas fa-camera"></i>
+              <div>Upload to preview</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-</div>
+    <!-- RESULTS -->
+    <div id="resultBox">
+      <div class="results-grid">
+        <div class="result-item">
+          <div class="result-label">Hair Type</div>
+          <div class="result-value" id="hairType">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Frizz</div>
+          <div class="result-value" id="frizz">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Damage</div>
+          <div class="result-value" id="damage">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Dandruff</div>
+          <div class="result-value" id="dandruff">-</div>
+        </div>
+      </div>
 
-<script src="js/script.js"></script>
+      <div class="recommendations">
+        <h3>💡 Personalized Recommendations</h3>
+        <!-- ✅ UNIQUE ID matching your script -->
+        <ul id="hairRecommendationList"></ul>
+      </div>
+
+      <!-- RECOMMENDED PRODUCTS -->
+      <div id="productSection" class="recommended-products" style="display: none;">
+        <h3>🛍 Recommended Products</h3>
+        <div class="products-grid">
+
+          <div class="product-card">
+            <img src="/images/antidandruff.jpg" alt="Anti-Dandruff Shampoo" class="product-img" loading="lazy">
+            <div class="product-content">
+              <h4>Anti-Dandruff Shampoo</h4>
+              <p>Effectively reduces dandruff and soothes itchy scalp. Clinically proven formula for moderate to severe dandruff conditions.</p>
+              <a href="https://www.nykaaman.com/head-shoulders-anti-dandruff-shampoo/p/12345" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="/images/hairserum.jpg" alt="Hair Repair Serum" class="product-img" loading="lazy">
+            <div class="product-content">
+              <h4>Hair Repair Serum</h4>
+              <p>Repairs damaged cuticles, reduces split ends and strengthens hair from root to tip. Best for chemically treated hair.</p>
+              <a href="https://www.flipkart.com/loreal-hair-serum/p/67890" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="/images/conditioner.jpg" alt="Anti-Frizz Conditioner" class="product-img" loading="lazy">
+            <div class="product-content">
+              <h4>Anti-Frizz Conditioner</h4>
+              <p>Controls frizz and flyaways while delivering smooth, manageable hair. Enriched with argan oil and keratin for lasting shine.</p>
+              <a href="https://www.nykaaman.com/anti-frizz-conditioner/p/54321" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview helper -->
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function () {
+      const file = this.files[0];
+      const preview = document.getElementById('preview');
+      const placeholder = document.getElementById('previewPlaceholder');
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      }
+    });
+  </script>
+
+  <!-- Utility helpers used by analyzeHair -->
+  <script>
+    function getImageFile() {
+      return document.getElementById('imageInput').files[0] || null;
+    }
+
+    function showPreview(file) {
+      const preview = document.getElementById('preview');
+      const placeholder = document.getElementById('previewPlaceholder');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    }
+
+    function setStatus(message, type) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = '';
+      statusEl.style.display = 'block';
+      if (type === 'error')   statusEl.classList.add('status-error');
+      if (type === 'loading') statusEl.classList.add('status-loading');
+      if (type === 'success') statusEl.classList.add('status-success');
+    }
+  </script>
+  <script src="js/script.js"></script>
+
+ 
 
 </body>
 </html>
+
+
+

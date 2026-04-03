@@ -1,6 +1,7 @@
 // ======================================
 // COMMON
 // ======================================
+
 function getImageFile() {
     return document.getElementById("imageInput").files[0];
 }
@@ -23,8 +24,9 @@ function setStatus(msg, type = "") {
 
 
 // ======================================
-// FACE ANALYSIS ✅
+// FACE ANALYSIS ✅ (UPDATED)
 // ======================================
+
 async function analyzeFace() {
 
     const file = getImageFile();
@@ -46,110 +48,213 @@ async function analyzeFace() {
             body: formData
         });
 
+        if (!res.ok) throw new Error("Server response failed");
+
         const data = await res.json();
 
+        console.log("FACE RESPONSE:", data);
+
         if (!data.success) {
-            setStatus("❌ " + data.error, "error");
+            setStatus("❌ " + (data.error || "Analysis failed"), "error");
             return;
         }
 
         setStatus("✅ Analysis Complete", "success");
 
         document.getElementById("resultBox").style.display = "block";
+        document.getElementById("productSection").style.display = "block";
 
-        document.getElementById("issue").innerText = data.issue;
-        document.getElementById("skinType").innerText = data.skin_type;
-        document.getElementById("tan").innerText = data.tan;
-        document.getElementById("wrinkles").innerText = data.wrinkles;
+        document.getElementById("issue").innerText = data.issue || "-";
+        document.getElementById("skinType").innerText = data.skin_type || "-";
+        document.getElementById("tan").innerText = data.tan || "-";
+        document.getElementById("wrinkles").innerText = data.wrinkles || "-";
 
         const list = document.getElementById("recommendationList");
         list.innerHTML = "";
 
-        data.recommendation.forEach(item => {
+        if (data.recommendation && data.recommendation.length > 0) {
+            data.recommendation.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = item;
+                list.appendChild(li);
+            });
+        } else {
             const li = document.createElement("li");
-            li.innerText = item;
+            li.innerText = "No recommendations available";
             list.appendChild(li);
-        });
+        }
 
     } catch (err) {
-        console.error(err);
+        console.error("FACE ERROR:", err);
         setStatus("❌ Server error", "error");
     }
 }
 
+// ======================================
+// HAIR ANALYSIS ✅ (UPDATED)
+// ======================================
 
-// ======================================
-// HAIR ANALYSIS
-// ======================================
 async function analyzeHair() {
 
     const file = getImageFile();
 
     if (!file) {
-        alert("Select image");
+        setStatus("❌ Please select an image", "error");
         return;
     }
 
+    // Preview
     showPreview(file);
+
+    // Status
+    setStatus("⏳ Analyzing...", "loading");
 
     const formData = new FormData();
     formData.append("image", file);
 
-    const res = await fetch("/api/hair-analysis", {
-        method: "POST",
-        body: formData
-    });
+    try {
+        const res = await fetch("/api/hair-analysis", {
+            method: "POST",
+            body: formData
+        });
 
-    const data = await res.json();
+        if (!res.ok) {
+            throw new Error("Server response failed");
+        }
 
-    if (!data.success) return alert(data.error);
+        const data = await res.json();
 
-    const r = data.result;
+        console.log("✅ HAIR RESPONSE:", data); // DEBUG
 
-    document.getElementById("resultBox").style.display = "block";
+        if (!data.success) {
+            setStatus("❌ " + (data.error || "Analysis failed"), "error");
+            return;
+        }
 
-    document.getElementById("hairType").innerText = r.hair_type;
-    document.getElementById("frizz").innerText = r.frizz;
-    document.getElementById("damage").innerText = r.damage;
-    document.getElementById("dandruff").innerText = r.dandruff;
+        // ✅ Show success
+        setStatus("✅ Hair Analysis Complete", "success");
+
+        // ✅ Show result box
+        const box = document.getElementById("resultBox");
+        if (box) box.style.display = "block";
+
+        // ✅ Set values safely
+        document.getElementById("hairType").innerText = data.hair_type ?? "-";
+        document.getElementById("frizz").innerText = data.frizz ?? "-";
+        document.getElementById("damage").innerText = data.damage ?? "-";
+        document.getElementById("dandruff").innerText = data.dandruff ?? "-";
+
+        // ✅ IMPORTANT: Use UNIQUE ID (fix your HTML also)
+        const list = document.getElementById("hairRecommendationList");
+
+        if (!list) {
+            console.error("❌ hairRecommendationList not found in HTML");
+            return;
+        }
+
+        list.innerHTML = "";
+
+        // ✅ Add recommendations
+        if (Array.isArray(data.recommendation) && data.recommendation.length > 0) {
+
+            data.recommendation.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = item;
+                list.appendChild(li);
+            });
+
+        } else {
+
+            const li = document.createElement("li");
+            li.innerText = "No recommendations available";
+            list.appendChild(li);
+        }
+
+    } catch (err) {
+        console.error("❌ HAIR ERROR:", err);
+        setStatus("❌ Server error", "error");
+    }
 }
 
+// ======================================
+// SKIN ANALYSIS ✅ (UPDATED)
+// ======================================
 
-// ======================================
-// SKIN ANALYSIS
-// ======================================
+
+
 async function analyzeSkin() {
 
     const file = getImageFile();
 
     if (!file) {
-        alert("Select image");
+        setStatus("❌ Please select an image", "error");
         return;
     }
 
     showPreview(file);
+    setStatus("⏳ Analyzing...", "loading");
 
     const formData = new FormData();
     formData.append("image", file);
 
-    const res = await fetch("/api/skin-analysis", {
-        method: "POST",
-        body: formData
-    });
+    try {
+        const res = await fetch("/api/skin-analysis", {
+            method: "POST",
+            body: formData
+        });
 
-    const data = await res.json();
+        if (!res.ok) throw new Error("Server error");
 
-    if (!data.success) return alert(data.error);
+        const data = await res.json();
 
-    document.getElementById("result").innerHTML = `
-        <h3>🧠 Skin Analysis</h3>
-        <p><b>Condition:</b> ${data.condition}</p>
-        <p><b>Confidence:</b> ${data.confidence}%</p>
-        <p><b>Skin Type:</b> ${data.skin_type}</p>
+        console.log("SKIN RESPONSE:", data); // 🔍 DEBUG
 
-        <h4>💡 Recommendations:</h4>
-        <ul>
-            ${data.recommendation.map(r => `<li>${r}</li>`).join("")}
-        </ul>
-    `;
+        if (!data.success) {
+            setStatus("❌ " + data.error, "error");
+            return;
+        }
+
+        setStatus("✅ Skin Analysis Complete", "success");
+
+        const resultBox = document.getElementById("result");
+        resultBox.style.display = "block";
+
+        // =========================
+        // Set basic values
+        // =========================
+        document.getElementById("skinCondition").innerText = data.condition || "-";
+        document.getElementById("skinConfidence").innerText = data.confidence || "-";
+        document.getElementById("skinType").innerText = data.skin_type || "-";
+
+        // =========================
+        // Recommendations (LIKE HAIR)
+        // =========================
+        const list = document.getElementById("skinRecommendationList");
+
+        if (!list) {
+            console.error("❌ skinRecommendationList not found in HTML");
+            return;
+        }
+
+        list.innerHTML = "";
+
+        if (Array.isArray(data.recommendation) && data.recommendation.length > 0) {
+
+            data.recommendation.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = item;
+                list.appendChild(li);
+            });
+
+        } else {
+
+            const li = document.createElement("li");
+            li.innerText = "No recommendations available";
+            list.appendChild(li);
+        }
+
+    } catch (err) {
+        console.error("SKIN ERROR:", err);
+        setStatus("❌ Server error", "error");
+    }
 }

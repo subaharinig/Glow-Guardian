@@ -1,91 +1,587 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Face Analysis</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Analysis - Glow Guardians</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --rose: #e8a0b4;
+      --deep-rose: #c2637a;
+      --blush: #f5dce5;
+      --cream: #fdf6f0;
+      --dark: #1a0f14;
+      --muted: #7a6570;
+      --gold: #d4a96a;
+    }
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f5f5;
-            text-align: center;
-            padding: 40px;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            width: 350px;
-            margin: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
 
-        img {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 1.6rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(253, 246, 240, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,140,160,0.15);
+    }
 
-        .result-box {
-            text-align: left;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+      border-radius: 50% 30% 50% 30%;
+      display: grid; place-items: center;
+      font-size: 1rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(194,99,122,0.4);
+    }
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem; font-weight: 600;
+      color: var(--dark); letter-spacing: 0.01em;
+    }
 
-        button {
-            padding: 10px 15px;
-            border: none;
-            background: #4CAF50;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .back-btn {
+      padding: 0.65rem 1.6rem;
+      background: var(--deep-rose);
+      color: var(--cream);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .back-btn:hover {
+      background: var(--rose);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(194,99,122,0.35);
+    }
 
-        button:hover {
-            background: #45a049;
-        }
+    /* ── MAIN ── */
+    .main {
+      padding: 120px 5% 80px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-        .status {
-            margin-top: 10px;
-            font-weight: bold;
-        }
+    .header {
+      text-align: center; margin-bottom: 4rem;
+    }
+    .header-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--deep-rose); font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .header-eyebrow::before {
+      content: '';
+      width: 28px; height: 1px;
+      background: var(--deep-rose);
+    }
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 300; line-height: 1.1;
+      color: var(--dark); margin-bottom: 0.5rem;
+    }
+    .header p {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 500px; margin: 0 auto;
+      line-height: 1.75; font-weight: 300;
+    }
 
-        .error { color: red; }
-        .loading { color: orange; }
-        .success { color: green; }
+    /* ── UPLOAD CARD ── */
+    .upload-card {
+      background: white;
+      border-radius: 28px;
+      padding: 3rem;
+      border: 1px solid rgba(200,140,160,0.12);
+      position: relative; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(194,99,122,0.08);
+      margin-bottom: 3rem;
+    }
 
-    </style>
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .upload-grid { grid-template-columns: 1fr; }
+    }
+
+    .upload-left h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 400;
+      color: var(--dark); margin-bottom: 1rem;
+    }
+    .upload-left p {
+      color: var(--muted); margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    #imageInput {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px dashed rgba(200,140,160,0.4);
+      border-radius: 16px;
+      background: rgba(245,220,229,0.3);
+      font-size: 1rem;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    #imageInput:hover {
+      border-color: var(--deep-rose);
+      background: rgba(232,160,180,0.15);
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 1.2rem;
+      background: linear-gradient(135deg, var(--deep-rose), var(--rose));
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: 1rem; font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: all 0.3s;
+    }
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(194,99,122,0.4);
+    }
+
+    #status {
+      margin-top: 1rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 100px;
+      font-weight: 500;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status-error {
+      background: rgba(226,99,122,0.15);
+      color: var(--deep-rose);
+      border: 1px solid rgba(226,99,122,0.3);
+    }
+    .status-loading {
+      background: rgba(212,169,106,0.2);
+      color: var(--gold);
+    }
+    .status-success {
+      background: rgba(108,170,69,0.2);
+      color: #437a22;
+    }
+
+    /* ── PREVIEW ── */
+    .preview-panel {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid rgba(200,140,160,0.15);
+      box-shadow: 0 12px 40px rgba(194,99,122,0.08);
+    }
+    .preview-header {
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      margin-bottom: 1rem; font-weight: 500;
+    }
+    #preview {
+      width: 100%; height: 280px; object-fit: cover;
+      border-radius: 16px; display: none;
+      background: linear-gradient(135deg, var(--blush), #f0d5a8);
+    }
+    .preview-placeholder {
+      height: 280px; display: grid; place-items: center;
+      color: var(--muted); text-align: center;
+      border: 2px dashed rgba(200,140,160,0.2);
+      border-radius: 16px; background: rgba(245,220,229,0.1);
+    }
+    .preview-placeholder i {
+      font-size: 3rem; opacity: 0.4; margin-bottom: 0.5rem;
+    }
+
+    /* ── RESULTS ── */
+    #resultBox {
+      display: none;
+      background: white;
+      border-radius: 28px;
+      padding: 3rem;
+      border: 1px solid rgba(200,140,160,0.12);
+      box-shadow: 0 20px 60px rgba(194,99,122,0.08);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .result-item {
+      background: rgba(245,220,229,0.4);
+      padding: 1.5rem;
+      border-radius: 20px;
+      border-left: 4px solid var(--deep-rose);
+    }
+    .result-label {
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--muted);
+      margin-bottom: 0.3rem; font-weight: 500;
+    }
+    .result-value {
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--dark);
+    }
+
+    .recommendations {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,140,160,0.15);
+    }
+    .recommendations h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 400;
+      color: var(--dark); margin-bottom: 1.5rem;
+    }
+
+    #recommendationList {
+      list-style: none;
+    }
+    #recommendationList li {
+      background: white;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: 16px;
+      border-left: 4px solid var(--rose);
+      box-shadow: 0 4px 12px rgba(232,160,180,0.15);
+      font-size: 1rem; line-height: 1.6;
+    }
+
+    /* ── RECOMMENDED PRODUCTS ── */
+    .recommended-products {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,140,160,0.15);
+    }
+
+    .recommended-products h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(194,99,122,0.12);
+      border: 1px solid rgba(200,140,160,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(194,99,122,0.18);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, var(--blush), #f0e8d8);
+    }
+
+    .product-content {
+      padding: 1.2rem;
+    }
+
+    .product-content h4 {
+      font-size: 1.1rem;
+      color: var(--dark);
+      margin-bottom: 0.6rem;
+    }
+
+    .product-content p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .buy-btn {
+      display: inline-block;
+      padding: 0.75rem 1.4rem;
+      background: linear-gradient(135deg, var(--deep-rose), var(--rose));
+      color: white;
+      text-decoration: none;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .buy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(194,99,122,0.3);
+    }
+
+    @media (max-width: 768px) {
+      .main { padding: 100px 5% 60px; }
+      .upload-card, #resultBox { padding: 2rem; }
+      .results-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="logo">
+      <div class="logo-mark">✦</div>
+      <span class="logo-text">Glow Guardians</span>
+    </a>
+    <a href="dashboard.html" class="back-btn">← Dashboard</a>
+  </nav>
 
-<h2>🧠 Face Analysis</h2>
+  <!-- MAIN -->
+  <div class="main">
+    <header class="header">
+      <div class="header-eyebrow">AI-Powered Analysis</div>
+      <h1>Face Analysis</h1>
+      <p>Upload a clear front-facing photo for comprehensive skin evaluation</p>
+    </header>
 
-<div class="card">
+    <!-- UPLOAD CARD -->
+    <div class="upload-card">
+      <div class="upload-grid">
+        <div class="upload-left">
+          <h2>Upload Your Photo</h2>
+          <p>Take a well-lit, front-facing photo. AI will analyze skin type, tan level, wrinkles and provide personalized recommendations.</p>
 
-    <input type="file" id="imageInput"><br><br>
+          <input type="file" id="imageInput" accept="image/*">
+          <button class="analyze-btn" onclick="analyzeFace()">Analyze Face</button>
+          <div id="status"></div>
+        </div>
 
-    <button onclick="analyzeFace()">Analyze</button>
-
-    <img id="preview" style="display:none;">
-
-    <!-- ✅ STATUS FIX -->
-    <p id="status" class="status"></p>
-
-    <div class="result-box" id="resultBox" style="display:none;">
-        <p><strong>Issue:</strong> <span id="issue"></span></p>
-        <p><strong>Skin Type:</strong> <span id="skinType"></span></p>
-        <p><strong>Tan Level:</strong> <span id="tan"></span></p>
-        <p><strong>Wrinkles:</strong> <span id="wrinkles"></span></p>
-
-        <h4>💡 Recommendations:</h4>
-        <ul id="recommendationList"></ul>
+        <div class="preview-panel">
+          <div class="preview-header">Live Preview</div>
+          <img id="preview" alt="Face preview">
+          <div class="preview-placeholder" id="previewPlaceholder">
+            <div>
+              <i class="fas fa-camera"></i>
+              <div>Upload to preview</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-</div>
+    <!-- RESULTS -->
+    <div id="resultBox">
+      <div class="results-grid">
+        <div class="result-item">
+          <div class="result-label">Detected Issue</div>
+          <div class="result-value" id="issue">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Skin Type</div>
+          <div class="result-value" id="skinType">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Tan Level</div>
+          <div class="result-value" id="tan">-</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Wrinkles</div>
+          <div class="result-value" id="wrinkles">-</div>
+        </div>
+      </div>
 
-<script src="js/script.js"></script>
+      <div class="recommendations">
+        <h3>💡 Personalized Recommendations</h3>
+        <ul id="recommendationList"></ul>
+      </div>
+
+      <!-- RECOMMENDED PRODUCTS -->
+      <div id="productSection" class="recommended-products" style="display: none;">
+        <h3>🛍 Recommended Products</h3>
+        <div class="products-grid">
+          <div class="product-card">
+            <img src="/images/clenser.jpg" alt="Gentle Face Cleanser" class="product-img">
+            <div class="product-content">
+              <h4>Gentle Face Cleanser</h4>
+              <p>Perfect for daily use to remove dirt, oil, and impurities without drying your skin. Best suited for sensitive and normal skin types.</p>
+              <a href="https://www.nykaaman.com/cetaphil-cleansing-lotion/p/22032?ptype=product&skuId=392482&utm_content=ads&utm_source=GooglePaid&utm_medium=SSC&utm_campaign=SSC_Grooming_Skin_CatchAll_231125&gad_source=1&gad_campaignid=23287740903&gbraid=0AAAAAC969uveUGzaBbANmwX9enAxasvtP&gclid=Cj0KCQjwyr3OBhD0ARIsALlo-OmTOT5sTvO8O6vnjhxCfB7IEvcxl2XMEPxZ4Om11AlFLOVOd0tcxRwaApm8EALw_wcB" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="/images/Sunscreen.jpg" alt="SPF 50 Sunscreen" class="product-img">
+            <div class="product-content">
+              <h4>SPF 50 Sunscreen</h4>
+              <p>Helps protect skin from tanning and harmful UV rays. A must-have product if your analysis shows medium or high tan levels.</p>
+              <a href="https://www.nykaaman.com/minimalist-spf-50-pa-sunscreen-with-multi-vitamin-for-reducing-photoaging-no-white-cast/p/17999996?ptype=product&skuId=2812174&utm_content=ads&utm_source=GooglePaid&utm_medium=SSC&utm_campaign=SSC_Grooming_Skin_CatchAll_231125&gad_source=1&gad_campaignid=23287740903&gbraid=0AAAAAC969uveUGzaBbANmwX9enAxasvtP&gclid=Cj0KCQjwyr3OBhD0ARIsALlo-Omca5P4ryaXEYB_Q0i16F9cFj7CccdShFL7nr4Sv877y2spZ9AEuwAaAmr2EALw_wcB" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="/images/VC.jpg" alt="Hydrating Vitamin Serum" class="product-img">
+            <div class="product-content">
+              <h4>Hydrating Vitamin Serum</h4>
+              <p>Improves skin texture, boosts hydration, and helps reduce early wrinkles while giving a brighter and smoother appearance.</p>
+              <a href="https://www.flipkart.com/pilgrim-2-hyaluronic-acid-hydration-super-serum-kiwi-extracts-face-intense-glowing-skin-100-safe-all-types-men-women-korean-care-30ml/p/itm52c5fb9e871e0?pid=FRNG7SY4ZC2CHPDR&lid=LSTFRNG7SY4ZC2CHPDR6ZS17Q&marketplace=FLIPKART&cmpid=content_skin-treatment_8965229628_gmc" target="_blank" class="buy-btn">Buy Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview helper -->
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function () {
+      const file = this.files[0];
+      const preview = document.getElementById('preview');
+      const placeholder = document.getElementById('previewPlaceholder');
+
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      }
+    });
+  </script>
+
+  <!-- Utility helpers used by analyzeFace -->
+  <script>
+    function getImageFile() {
+      return document.getElementById('imageInput').files[0] || null;
+    }
+
+    function showPreview(file) {
+      const preview = document.getElementById('preview');
+      const placeholder = document.getElementById('previewPlaceholder');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    }
+
+    function setStatus(message, type) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = '';
+      statusEl.style.display = 'block';
+      if (type === 'error')   statusEl.classList.add('status-error');
+      if (type === 'loading') statusEl.classList.add('status-loading');
+      if (type === 'success') statusEl.classList.add('status-success');
+    }
+  </script>
+
+  <!-- FACE ANALYSIS (UPDATED) -->
+  <script>
+    async function analyzeFace() {
+
+      const file = getImageFile();
+
+      if (!file) {
+        setStatus("❌ Please select an image", "error");
+        return;
+      }
+
+      showPreview(file);
+      setStatus("⏳ Analyzing...", "loading");
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch("/api/face-analysis", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) throw new Error("Server response failed");
+
+        const data = await res.json();
+
+        console.log("FACE RESPONSE:", data);
+
+        if (!data.success) {
+          setStatus("❌ " + (data.error || "Analysis failed"), "error");
+          return;
+        }
+
+        setStatus("✅ Analysis Complete", "success");
+
+        document.getElementById("resultBox").style.display = "block";
+        document.getElementById("productSection").style.display = "block";
+
+        document.getElementById("issue").innerText = data.issue || "-";
+        document.getElementById("skinType").innerText = data.skin_type || "-";
+        document.getElementById("tan").innerText = data.tan || "-";
+        document.getElementById("wrinkles").innerText = data.wrinkles || "-";
+
+        const list = document.getElementById("recommendationList");
+        list.innerHTML = "";
+
+        if (data.recommendation && data.recommendation.length > 0) {
+          data.recommendation.forEach(item => {
+            const li = document.createElement("li");
+            li.innerText = item;
+            list.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.innerText = "No recommendations available";
+          list.appendChild(li);
+        }
+
+      } catch (err) {
+        console.error("FACE ERROR:", err);
+        setStatus("❌ Server error", "error");
+      }
+    }
+  </script>
 
 </body>
 </html>
