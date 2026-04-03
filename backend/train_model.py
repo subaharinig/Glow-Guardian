@@ -5,7 +5,7 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
 import joblib
 
-from utils.skin_features import extract_features
+from backend.utils.face_features import extract_features
 
 DATASET_PATH = "dataset/train"
 VALID_PATH = "dataset/valid"

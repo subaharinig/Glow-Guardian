@@ -3,7 +3,7 @@ import cv2
 
 # ✅ Correct imports
 from backend.utils.face_detection import detect_face
-from backend.utils.skin_analysis import full_analysis
+from backend.utils.face_analysis import full_analysis
 from backend.utils.recommendation import get_recommendation
 
 # ===============================

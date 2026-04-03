@@ -1,27 +1,74 @@
 import cv2
 import numpy as np
 
-def extract_features(face):
+# ==============================
+# FEATURE EXTRACTION
+# ==============================
+def extract_features(image):
+    """
+    Extract features from image
+    Returns: list of numerical features
+    """
 
-    face = cv2.resize(face, (224, 224))
-    gray = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+    if image is None:
+        return None
 
-    # 🔴 Redness (pimples)
-    red = face[:, :, 2]
-    green = face[:, :, 1]
+    image = cv2.resize(image, (224, 224))
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # 🔴 Redness (infection / rash)
+    red = image[:, :, 2]
+    green = image[:, :, 1]
     redness = np.mean(red - green)
 
-    # 🌟 Brightness (skin type / tan)
+    # 🌟 Brightness
     brightness = np.mean(gray)
 
     # 🧵 Texture (dry skin)
     texture = np.var(gray)
 
-    # 🔳 Wrinkles (edges)
+    # 🔳 Edge density (roughness)
     edges = cv2.Canny(gray, 100, 200)
     edge_density = np.mean(edges)
 
-    # 🟤 Dark spots (color variation)
-    color_var = np.var(face)
+    # 🟤 Color variation (uneven skin)
+    color_var = np.var(image)
 
-    return [redness, brightness, texture, edge_density, color_var]
+    # 🎨 Saturation
+    saturation = np.mean(hsv[:, :, 1])
+
+    # 🌈 Hue variance
+    hue_var = np.var(hsv[:, :, 0])
+
+    return [
+        redness,
+        brightness,
+        texture,
+        edge_density,
+        color_var,
+        saturation,
+        hue_var
+    ]
+
+
+# ==============================
+# SKIN TYPE DETECTION
+# ==============================
+def detect_skin_type(features):
+    """
+    Detect skin type using extracted features
+    """
+
+    if features is None:
+        return "Unknown"
+
+    _, brightness, texture, _, _, _, _ = features
+
+    if brightness > 150:
+        return "Oily"
+    elif texture > 500:
+        return "Dry"
+    else:
+        return "Normal"

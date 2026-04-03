@@ -2,46 +2,52 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
-# IMPORTANT: remove "backend." if running inside backend folder
 from backend.routes.auth_routes import auth
 
+# AI Modules
 from backend.utils.face_detection import detect_face
-from backend.utils.skin_analysis import full_analysis
+from backend.utils.face_analysis import full_analysis as face_analysis
 from backend.utils.hair_analysis import analyze_hair
-from backend.utils.disease_analysis import analyze_disease
-from backend.utils.recommendation import get_recommendation
+from backend.utils.skin_features import extract_features, detect_skin_type
 
 import os
+import cv2
+import joblib
 
 # ======================================
-# APP CONFIGURATION
+# APP CONFIG
 # ======================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Frontend path
 FRONTEND_FOLDER = os.path.join(BASE_DIR, "../frontend")
 
-app = Flask(
-    __name__,
-    static_folder=FRONTEND_FOLDER,
-    static_url_path=""
-)
-
+app = Flask(__name__, static_folder=FRONTEND_FOLDER, static_url_path="")
 CORS(app)
 
-# Upload config
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5MB limit
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
+# ======================================
+# LOAD MODELS (ONLY ONCE 🔥)
+# ======================================
+
+MODEL_PATH = os.path.join(BASE_DIR, "models", "disease_model.pkl")
+disease_model = joblib.load(MODEL_PATH)
+
+label_map = {
+    0: "Allergy",
+    1: "Infection",
+    2: "Normal",
+    3: "Rash"
+}
 
 # ======================================
-# HELPER FUNCTIONS
+# HELPERS
 # ======================================
 
 def allowed_file(filename):
@@ -50,20 +56,20 @@ def allowed_file(filename):
 
 def save_file(file):
     filename = secure_filename(file.filename)
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(save_path)
-    return save_path
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(path)
+    return path
 
 
 # ======================================
-# REGISTER BLUEPRINTS
+# AUTH
 # ======================================
 
 app.register_blueprint(auth, url_prefix="/api/auth")
 
 
 # ======================================
-# SERVE FRONTEND
+# FRONTEND
 # ======================================
 
 @app.route("/")
@@ -82,67 +88,46 @@ def serve_files(path):
 
 
 # ======================================
-# SKIN ANALYSIS API (UPDATED)
+# 1️⃣ FACE ANALYSIS
 # ======================================
 
-@app.route("/api/skin-analysis", methods=["POST"])
-def skin_analysis():
+@app.route("/api/face-analysis", methods=["POST"])
+def analyze_face():
     try:
-        if "image" not in request.files:
+        image = request.files.get("image")
+
+        if not image or image.filename == "":
             return jsonify({"error": "No image uploaded"}), 400
-
-        image = request.files["image"]
-
-        if image.filename == "":
-            return jsonify({"error": "Empty filename"}), 400
-
-        if not allowed_file(image.filename):
-            return jsonify({"error": "Invalid file type"}), 400
 
         save_path = save_file(image)
 
-        # Face Detection
         face = detect_face(save_path)
 
         if face is None:
             return jsonify({"error": "No face detected"}), 400
 
-        # ✅ FULL AI ANALYSIS
-        result = full_analysis(face)
-
-        # Recommendation
-        recommendation = get_recommendation(result["skin_type"])
+        result = face_analysis(face)
 
         return jsonify({
             "success": True,
-            **result,
-            "recommendation": recommendation
+            **result
         })
 
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
 # ======================================
-# HAIR ANALYSIS API
+# 2️⃣ HAIR ANALYSIS
 # ======================================
 
 @app.route("/api/hair-analysis", methods=["POST"])
-def hair_analysis():
+def analyze_hair_api():
     try:
-        if "image" not in request.files:
+        image = request.files.get("image")
+
+        if not image or image.filename == "":
             return jsonify({"error": "No image uploaded"}), 400
-
-        image = request.files["image"]
-
-        if image.filename == "":
-            return jsonify({"error": "Empty filename"}), 400
-
-        if not allowed_file(image.filename):
-            return jsonify({"error": "Invalid file type"}), 400
 
         save_path = save_file(image)
 
@@ -154,48 +139,67 @@ def hair_analysis():
         })
 
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 # ======================================
-# DISEASE ANALYSIS API
+# 3️⃣ SKIN ANALYSIS (FINAL ✅)
 # ======================================
 
-@app.route("/api/disease-analysis", methods=["POST"])
-def disease_analysis():
+@app.route("/api/skin-analysis", methods=["POST"])
+def analyze_skin():
     try:
-        if "image" not in request.files:
-            return jsonify({"error": "No image uploaded"}), 400
+        image = request.files.get("image")
 
-        image = request.files["image"]
-
-        if image.filename == "":
-            return jsonify({"error": "Empty filename"}), 400
-
-        if not allowed_file(image.filename):
-            return jsonify({"error": "Invalid file type"}), 400
+        if not image or image.filename == "":
+            return jsonify({"success": False, "error": "No image uploaded"}), 400
 
         save_path = save_file(image)
 
-        result = analyze_disease(save_path)
+        img = cv2.imread(save_path)
+
+        if img is None:
+            return jsonify({"success": False, "error": "Failed to read image"}), 400
+
+        # Extract Features
+        features = extract_features(img)
+
+        # Predict Disease
+        pred = disease_model.predict([features])[0]
+        probs = disease_model.predict_proba([features])[0]
+
+        confidence = float(max(probs))
+        condition = label_map[pred]
+
+        # Detect Skin Type
+        skin_type = detect_skin_type(features)
+
+        # Recommendations
+        if pred == 0:
+            rec = ["Avoid allergens", "Use anti-allergic cream"]
+        elif pred == 1:
+            rec = ["Keep area clean", "Consult doctor if severe"]
+        elif pred == 2:
+            rec = ["Maintain hygiene", "Use moisturizer"]
+        else:
+            rec = ["Use soothing lotion", "Avoid heat exposure"]
 
         return jsonify({
             "success": True,
-            "result": result
+            "condition": condition,
+            "confidence": round(confidence * 100, 2),
+            "skin_type": skin_type,
+            "recommendation": rec
         })
 
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ======================================
-# HEALTH CHECK API
+# STATUS
 # ======================================
 
 @app.route("/api/status")
@@ -207,12 +211,12 @@ def status():
 
 
 # ======================================
-# GLOBAL ERROR HANDLER
+# ERRORS
 # ======================================
 
 @app.errorhandler(413)
 def file_too_large(e):
-    return jsonify({"error": "File too large (Max 5MB)"}), 413
+    return jsonify({"error": "File too large"}), 413
 
 
 @app.errorhandler(404)
@@ -221,8 +225,8 @@ def not_found(e):
 
 
 # ======================================
-# RUN SERVER
+# RUN
 # ======================================
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000, use_reloader=False)
