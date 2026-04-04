@@ -442,7 +442,6 @@
 
       <div class="recommendations">
         <h3>💡 Personalized Recommendations</h3>
-        <!-- ✅ UNIQUE ID matching your script -->
         <ul id="hairRecommendationList"></ul>
       </div>
 
@@ -452,29 +451,29 @@
         <div class="products-grid">
 
           <div class="product-card">
-            <img src="/images/antidandruff.jpg" alt="Anti-Dandruff Shampoo" class="product-img" loading="lazy">
+            <img src="/images/Anti-Dandruff Shampoo.png" alt="Anti-Dandruff Shampoo" class="product-img" loading="lazy">
             <div class="product-content">
               <h4>Anti-Dandruff Shampoo</h4>
               <p>Effectively reduces dandruff and soothes itchy scalp. Clinically proven formula for moderate to severe dandruff conditions.</p>
-              <a href="https://www.nykaaman.com/head-shoulders-anti-dandruff-shampoo/p/12345" target="_blank" class="buy-btn">Buy Now</a>
+              <a href="https://innovist.com/products/anti-dandruff-shampoo-with-salicylic-acid-biotin-750ml?variant=41181163880494&country=IN&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&utm_source=google_ads&utm_medium=cpc&utm_campaign=23364403889&utm_adgroup=198672104868&utm_content=788371638682&utm_term=&gad_source=1&gad_campaignid=23364403889&gbraid=0AAAAAC0j2IM1SPixD6z15-xQKadjFQJo3&gclid=Cj0KCQjwyr3OBhD0ARIsALlo-OnhlhT8Fr9r3UAwekS68zrWcPpzJ4w8u9zo4y4CQCN6qB1up1-nW7EaAnTPEALw_wcB" target="_blank" class="buy-btn">Buy Now</a>
             </div>
           </div>
 
           <div class="product-card">
-            <img src="/images/hairserum.jpg" alt="Hair Repair Serum" class="product-img" loading="lazy">
+            <img src="/images/Hair Repair Serum.png" alt="Hair Repair Serum" class="product-img" loading="lazy">
             <div class="product-content">
               <h4>Hair Repair Serum</h4>
               <p>Repairs damaged cuticles, reduces split ends and strengthens hair from root to tip. Best for chemically treated hair.</p>
-              <a href="https://www.flipkart.com/loreal-hair-serum/p/67890" target="_blank" class="buy-btn">Buy Now</a>
+              <a href="https://discoverpilgrim.com/products/3-redensyl-4-anagain-advanced-hair-growth-serum-for-dandruff-prone-scalp-30-ml?utm_source=google&utm_medium=stdshopping&utm_campaign=HRCR_Category_Brand_SP_05_09_2025_Sales&utm_term=9009778458853&gad_source=1" target="_blank" class="buy-btn">Buy Now</a>
             </div>
           </div>
 
           <div class="product-card">
-            <img src="/images/conditioner.jpg" alt="Anti-Frizz Conditioner" class="product-img" loading="lazy">
+            <img src="/images/Anti-Frizz Conditioner.png" alt="Anti-Frizz Conditioner" class="product-img" loading="lazy">
             <div class="product-content">
               <h4>Anti-Frizz Conditioner</h4>
               <p>Controls frizz and flyaways while delivering smooth, manageable hair. Enriched with argan oil and keratin for lasting shine.</p>
-              <a href="https://www.nykaaman.com/anti-frizz-conditioner/p/54321" target="_blank" class="buy-btn">Buy Now</a>
+              <a href="https://discoverpilgrim.com/products/sulphate-free-shampoo-argan-oil-conditioner?gad_source=1&utm_campaign=HRCR_MonsoonHaircare_NonBrand_SP_25_06_2025_Sales&utm_medium=stdshopping&utm_source=google&utm_term=8830087463141" target="_blank" class="buy-btn">Buy Now</a>
             </div>
           </div>
 
@@ -483,7 +482,7 @@
     </div>
   </div>
 
-  <!-- Preview helper -->
+  <!-- Preview helper (inline, runs immediately) -->
   <script>
     document.getElementById('imageInput').addEventListener('change', function () {
       const file = this.files[0];
@@ -497,36 +496,8 @@
     });
   </script>
 
-  <!-- Utility helpers used by analyzeHair -->
-  <script>
-    function getImageFile() {
-      return document.getElementById('imageInput').files[0] || null;
-    }
-
-    function showPreview(file) {
-      const preview = document.getElementById('preview');
-      const placeholder = document.getElementById('previewPlaceholder');
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-      placeholder.style.display = 'none';
-    }
-
-    function setStatus(message, type) {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = message;
-      statusEl.className = '';
-      statusEl.style.display = 'block';
-      if (type === 'error')   statusEl.classList.add('status-error');
-      if (type === 'loading') statusEl.classList.add('status-loading');
-      if (type === 'success') statusEl.classList.add('status-success');
-    }
-  </script>
+  <!-- External JS (utilities + analyzeHair) -->
   <script src="js/script.js"></script>
-
- 
 
 </body>
 </html>
-
-
-
