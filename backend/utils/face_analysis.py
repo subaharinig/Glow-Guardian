@@ -5,6 +5,7 @@ import numpy as np
 from backend.utils.face_features import extract_features
 from backend.utils.recommendation import get_face_recommendation
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, "models", "skin_model.pkl")
 
